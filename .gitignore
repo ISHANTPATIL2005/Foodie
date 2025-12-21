@@ -1,0 +1,15 @@
+node_modules/
+.env
+frontend/.next/
+frontend/node_modules/
+backend/node_modules/
+.DS_Store
+.vscode/
+npm-debug.log*
+yarn-error.log*
+dist/
+build/
+*.local
+*.log
+.env.local
+*.pem
