@@ -11,7 +11,7 @@ exports.createOrder = async (req, res) => {
     const userId = req.user.id;
     const { items, paymentMode, address } = req.body;
 
-    // Validate request
+    // 1️⃣ Validate request
     if (!items || items.length === 0 || !address || !paymentMode) {
       return res.status(400).json({
         success: false,
@@ -19,8 +19,12 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    // Check if address exists and belongs to user
-    const userAddress = await Address.findOne({ _id: address, user: userId });
+    // 2️⃣ Check if address exists and belongs to user
+    const userAddress = await Address.findOne({
+      _id: address,
+      user: userId
+    });
+
     if (!userAddress) {
       return res.status(404).json({
         success: false,
@@ -30,15 +34,29 @@ exports.createOrder = async (req, res) => {
 
     let totalPrice = 0;
     const orderItems = [];
+    let restaurant = null;
 
-    // Loop through items and calculate total
-    for (const item of items) {
-      const product = await Product.findById(item.product);
+    // 3️⃣ Loop through items and calculate total
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      const product = await Product.findById(item.product).populate("restaurant");
       if (!product) {
         return res.status(404).json({
           success: false,
           message: `Product not found: ${item.product}`
         });
+      }
+
+      
+      if (i === 0) {
+        if (!product.restaurant) {
+          return res.status(404).json({
+            success: false,
+            message: "Restaurant not found for product"
+          });
+        }
+        restaurant = product.restaurant;
       }
 
       totalPrice += product.price * item.quantity;
@@ -50,21 +68,40 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    // Create order
-    const order = await Order.create({
+    
+    if (!restaurant || !restaurant.latitude || !restaurant.longitude) {
+      return res.status(400).json({
+        success: false,
+        message: "Restaurant location not available"
+      });
+    }
+
+     const order = await Order.create({
       user: userId,
       items: orderItems,
       address: userAddress._id,
       paymentMode,
-      totalPrice
+      totalPrice,
+
+      status: "PLACED",
+
+      pickupLocation: {
+        lat: restaurant.latitude,
+        lng: restaurant.longitude
+      },
+
+      isTrackingEnabled: false
     });
 
+    // 6️⃣ Response
     return res.status(201).json({
       success: true,
       message: "Order created successfully",
       order
     });
+
   } catch (error) {
+    console.error("Error creating order:", error.message);
     return res.status(500).json({
       success: false,
       message: "Error creating order",
@@ -74,6 +111,40 @@ exports.createOrder = async (req, res) => {
 };
 
 
+exports.assignDeliveryPartner = async (req, res) => {
+  try {
+    const { orderId, deliveryPartnerId } = req.body;
+
+    const order = await Order.findByIdAndUpdate(
+      orderId,
+      {
+        deliveryPartner: deliveryPartnerId,
+        status: "ASSIGNED",
+        isTrackingEnabled: true
+      },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found"
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Delivery partner assigned",
+      order
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to assign delivery partner",
+      error: error.message
+    });
+  }
+};
 
 
 

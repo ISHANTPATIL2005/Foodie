@@ -11,25 +11,25 @@ exports.createproduct = async (req, res) => {
     const userId = req.user.id;
     const { name, description, category, price } = req.body;
 
-    // Validate inputs (without image)
+    // 1️⃣ Validate inputs
     if (!name || !description || !category || !price) {
       return res.status(400).json({
         success: false,
-        message: "Fill all the details",
+        message: "Fill all the details"
       });
     }
 
-    // Check for image file
+    // 2️⃣ Image check
     if (!req.files || !req.files.image) {
       return res.status(400).json({
         success: false,
-        message: "Image not received",
+        message: "Image not received"
       });
     }
 
     const image = req.files.image;
 
-    // Upload to Cloudinary (folder path can be nested)
+    // 3️⃣ Upload image
     const imageUpload = await imageUploder(
       image,
       `${process.env.CLOUDINARY_FOLDER}/products`
@@ -38,50 +38,48 @@ exports.createproduct = async (req, res) => {
     if (!imageUpload) {
       return res.status(400).json({
         success: false,
-        message: "Image upload failed",
+        message: "Image upload failed"
       });
     }
 
-    // Check user
-    const user = await User.findById(userId);
-    if (!user) {
+    // 4️⃣ Find restaurant owned by user
+    const restaurant = await Restaurant.findOne({ owner: userId });
+
+    if (!restaurant) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: "Restaurant not found for this user"
       });
     }
 
-    // Create product
+    // 5️⃣ Create product (FIXED)
     const product = await MenuItem.create({
       name,
       description,
       category,
       price,
-     image: imageUpload.secure_url,
+      image: imageUpload.secure_url,
 
-      restaurant: userId,
+      // ✅ IMPORTANT FIX
+      restaurant: restaurant._id
     });
-
-    // Update user account type
-    await User.findByIdAndUpdate(
-      userId,
-      { accountType: "restaurant" },
-      { new: true }
-    );
 
     return res.status(201).json({
       success: true,
       message: "Product created successfully",
-      product,
+      product
     });
+
   } catch (error) {
+    console.error("createproduct error:", error);
     return res.status(500).json({
       success: false,
       message: "Error occurred in createproduct",
-      error: error.message,
+      error: error.message
     });
   }
 };
+
 
 
 exports.getAllProduct = async (req, res) => {

@@ -5,7 +5,12 @@ const menuItemSchema = new mongoose.Schema({
   description: { type: String },   // fixed typo
   price: { type: Number, required: true },
   image: { type: String, required: true },
-  restaurant: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant' },
+restaurant: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Restaurant",
+  required: true
+}
+,
   category: { type: String, required: true },
   available: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now }

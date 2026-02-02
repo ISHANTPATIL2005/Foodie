@@ -8,7 +8,9 @@ const restaurantSchema = new mongoose.Schema({
     phone:{type:Number,required:true},
     product:{type:mongoose.Schema.Types.ObjectId, ref:"MenuItem"},
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    latitude: { type: Number,required: true},
+longitude: { type: Number, required: true}
 })
 
 

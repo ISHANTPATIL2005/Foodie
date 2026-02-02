@@ -1,6 +1,6 @@
-const mongoose =require("mongoose")
+const mongoose = require("mongoose")
 const Restaurant = require("../models/Restaurant");
-const {imageUploder} = require("../utils/imageUploder");
+const { imageUploder } = require("../utils/imageUploder");
 const User = require("../models/User");
 const Product = require("../models/MenuItem");
 
@@ -10,18 +10,20 @@ const Product = require("../models/MenuItem");
 exports.RestaurantRegister = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { restaurantName, address, city, phone } = req.body;
+    const { restaurantName, address, city, phone, latitude, longitude } = req.body;
+
 
     // Check required fields
-    if (!restaurantName || !address || !city || !phone) {
+    if (!restaurantName || !address || !city || !phone || !latitude || !longitude) {
       return res.status(400).json({
         success: false,
-        message: "Fill all the details",
+        message: "Fill all the details including location"
       });
     }
 
+
     // Check if restaurant already exists for this user
-   const existingRestaurant = await Restaurant.findOne({ owner: userId });
+    const existingRestaurant = await Restaurant.findOne({ owner: userId });
 
     if (existingRestaurant) {
       return res.status(400).json({
@@ -30,37 +32,40 @@ exports.RestaurantRegister = async (req, res) => {
       });
     }
 
-      if (!req.files || !req.files.image) {
-          return res.status(400).json({
-            success: false,
-            message: "Image not received",
-          });
-        }
-    
-        const image = req.files.image;
-    
-        // Upload to Cloudinary (folder path can be nested)
-        const imageUpload = await imageUploder(
-          image,
-          `${process.env.CLOUDINARY_FOLDER}/products`
-        );
-    
-        if (!imageUpload) {
-          return res.status(400).json({
-            success: false,
-            message: "Image upload failed",
-          });
-        }
+    if (!req.files || !req.files.image) {
+      return res.status(400).json({
+        success: false,
+        message: "Image not received",
+      });
+    }
+
+    const image = req.files.image;
+
+    // Upload to Cloudinary (folder path can be nested)
+    const imageUpload = await imageUploder(
+      image,
+      `${process.env.CLOUDINARY_FOLDER}/products`
+    );
+
+    if (!imageUpload) {
+      return res.status(400).json({
+        success: false,
+        message: "Image upload failed",
+      });
+    }
 
     // Create new restaurant entry
-    const newRestaurant = await Restaurant.create({
-      restaurantName,
-      address,
-      city,
-      phone,
-      owner: userId,
-      image:imageUpload.secure_url
-    });
+   const newRestaurant = await Restaurant.create({
+  restaurantName,
+  address,
+  city,
+  phone,
+  owner: userId,
+  image: imageUpload.secure_url,
+  latitude,
+  longitude
+});
+
 
     // Update user role
     await User.findByIdAndUpdate(
@@ -91,7 +96,7 @@ exports.updateRestaurant = async (req, res) => {
   try {
     const userId = req.user.id;
 
-      const restaurant = await Restaurant.findOneAndUpdate(
+    const restaurant = await Restaurant.findOneAndUpdate(
       { owner: userId },       // filter
       req.body,                // update fields
       { new: true, runValidators: true } // options

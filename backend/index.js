@@ -25,7 +25,7 @@ dotenv.config();
 database.connect();
 connectCloudinary.connectCloudinary();
 
-// ✅ Middleware
+//  Middleware
 App.use(express.json());
 App.use(cookieParser());
 App.use(
@@ -41,7 +41,7 @@ App.use(
   })
 );
 
-// ✅ ✅ Logging Middleware — placed BEFORE routes
+//  Logging Middleware — placed BEFORE routes
 App.use((req, res, next) => {
   const start = Date.now();
   res.on("finish", () => {
@@ -61,13 +61,13 @@ App.use((req, res, next) => {
 
 
 
-// ✅ Routes
+//  Routes
 App.use("/api/v1/auth", userRoutes);
 App.use("/api/v1/restro",restaurantRoutes)
 App.use("/api/v1/product",productRoutes)
 App.use("/api/v1/address",addressRoutes)
 
-// ✅ Start server
+//  Start server
 App.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
 });
