@@ -58,7 +58,8 @@ exports.addToCart = async (req, res) => {
   }
 };
 
-// Update quantity of a product in cart
+
+
 exports.updateCartItem = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -84,7 +85,7 @@ exports.updateCartItem = async (req, res) => {
   }
 };
 
-// Remove a product from cart
+
 exports.removeCartItem = async (req, res) => {
   try {
     const userId = req.user.id;

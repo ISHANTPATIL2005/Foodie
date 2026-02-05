@@ -7,7 +7,7 @@ interface Props {
 
 export default function RestaurantCard({ restaurant }: Props) {
   return (
-    <Link href={`/restaurants/${restaurant._id}`}>
+   <Link href={`/restaurants/${restaurant._id}`}>
       <div className="border rounded p-4 hover:shadow cursor-pointer">
         <img
           src={restaurant.image}

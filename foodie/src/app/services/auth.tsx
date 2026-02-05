@@ -10,6 +10,7 @@ import {
   SignupPayload,
   AuthData,
 } from "@/app/lib/auth";
+import { useAuth } from "@/app/context/AuthProvider";
 
 type AuthMode = "login" | "signup";
 
@@ -29,6 +30,8 @@ interface AuthFormProps {
 }
 
 export default function AuthForm({ mode }: AuthFormProps) {
+  const { login } = useAuth();
+
   const [form, setForm] = useState<AuthFormData>({
     email: "",
     password: "",
@@ -38,10 +41,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement>
-  ) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -54,16 +56,14 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
       if (mode === "signup") {
         data = await signupApi(form as SignupPayload);
-        console.log("Signup successful");
       } else {
         data = await loginApi(form as LoginPayload);
-        console.log("Login successful");
       }
 
-      
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("accountType", data.accountType);
+      // ✅ STORE AUTH IN CONTEXT (single source of truth)
+      login(data);
 
+      console.log("Authenticated user:", data.user);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -84,6 +84,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         <Input
           label="Name"
           name="name"
+          value={"name" in form ? form.name : ""}
           onChange={handleChange}
           required
         />
@@ -93,6 +94,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         label="Email"
         name="email"
         type="email"
+        value={form.email}
         onChange={handleChange}
         required
       />
@@ -101,21 +103,16 @@ export default function AuthForm({ mode }: AuthFormProps) {
         label="Password"
         name="password"
         type="password"
+        value={form.password}
         onChange={handleChange}
         required
       />
 
       {error && (
-        <p className="text-sm text-red-600 text-center">
-          {error}
-        </p>
+        <p className="text-sm text-red-600 text-center">{error}</p>
       )}
 
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={loading}
-      >
+      <Button type="submit" className="w-full" disabled={loading}>
         {loading
           ? "Please wait..."
           : mode === "login"

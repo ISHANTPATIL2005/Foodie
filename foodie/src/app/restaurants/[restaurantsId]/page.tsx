@@ -1,13 +1,17 @@
 import RestaurantDetails from "@/app/components/restaurant/RestaurantDetails";
 
-export default function Page({
+export default async function Page({
   params,
 }: {
-  params: { restaurantId: string };
+  params: Promise<{ restaurantId: string }>;
 }) {
+  const { restaurantId } = await params;
+
+  if (!restaurantId) {
+    return <p>Invalid restaurant ID</p>;
+  }
+
   return (
-    <RestaurantDetails
-      restaurantId={params.restaurantId}
-    />
+    <RestaurantDetails restaurantId={restaurantId} />
   );
 }

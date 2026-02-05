@@ -1,4 +1,4 @@
-// get all product
+// get allRestaurants
 import RestaurantsList from "@/app/components/restaurant/RestaurantList";
 
 export default function RestaurantsPage() {

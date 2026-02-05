@@ -6,6 +6,7 @@ export default function Home() {
     <div>
       <h1 className="text-3xl font-bold">Welcome to Foodie!</h1>
       <Button variant="primary">Get Started</Button>
+    
     </div>
   );
 }

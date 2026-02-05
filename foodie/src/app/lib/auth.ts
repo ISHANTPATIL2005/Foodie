@@ -13,31 +13,40 @@ export interface SignupPayload {
   password: string;
 }
 
-export type AccountType = "USER" | "ADMIN" | "RESTAURANT";
+export type AccountType = "restaurant" | "user" | "admin";
 
 export interface AuthData {
   token: string;
-  accountType: AccountType;
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+    accountType: AccountType;
+  };
 }
 
-interface ApiResponse<T> {
+interface AuthApiResponse {
   success: boolean;
-  data: T;
-  message?: string;
+  message: string;
+  token: string;
+  user: AuthData["user"];
 }
 
 
 
-async function handleResponse<T>(
+async function handleAuthResponse(
   res: Response
-): Promise<T> {
-  const result: ApiResponse<T> = await res.json();
+): Promise<AuthData> {
+  const result: AuthApiResponse = await res.json();
 
   if (!res.ok) {
-    throw new Error(result.message || "Request failed");
+    throw new Error(result.message || "Authentication failed");
   }
 
-  return result.data;
+  return {
+    token: result.token,
+    user: result.user,
+  };
 }
 
 
@@ -54,7 +63,7 @@ export async function signupApi(
     }
   );
 
-  return handleResponse<AuthData>(res);
+  return handleAuthResponse(res);
 }
 
 export async function loginApi(
@@ -69,5 +78,5 @@ export async function loginApi(
     }
   );
 
-  return handleResponse<AuthData>(res);
+  return handleAuthResponse(res);
 }

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-require("dotenv").config
+require("dotenv").config();
 const User = require("../models/User")
 
 const jwt = require("jsonwebtoken");
@@ -26,53 +26,55 @@ exports.auth = (req, res, next) => {
 
 
 exports.IsUser = async (req, res, next) => {
-
-    try {
-        if (req.user.accountType = !"user") {
-            res.status(400).json({
-                success: false,
-                message: "this route is for User"
-            })}
-            next()}
-    catch { 
-        return res.status(500).json({
-            success:false,
-            message:"Error Occure in IsUser"
-        }) }   }
-
-
-exports.IsRestaurant=async(req,res,next)=>{
-    try{
-        if(req.user.accountType =!"restaurant"){
-            return res.status(400).json({
-                success:false,
-                message:"This route is only for IsReasturant"
-            })
-        }
-        next();
+  try {
+    if (!req.user || req.user.accountType !== "user") {
+      return res.status(403).json({
+        success: false,
+        message: "This route is for users only",
+      });
     }
-    catch(error){
-return res.status(500).json({
-    success:false,
-    message:"Error ocuure in IsRestaurant",
-    error:error.message
-})
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred in IsUser",
+      error: error.message,
+    });
+  }
+};
+
+
+exports.IsRestaurant = async (req, res, next) => {
+  try {
+    if (!req.user || req.user.accountType !== "restaurant") {
+      return res.status(403).json({
+        success: false,
+        message: "This route is for restaurants only",
+      });
     }
-}
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred in IsRestaurant",
+      error: error.message,
+    });
+  }
+};
 exports.isAdmin = async (req, res, next) => {
   try {
-    if (req.user.accountType !== "Admin") {
-      return res.status(401).json({
+    if (!req.user || req.user.accountType !== "admin") {
+      return res.status(403).json({
         success: false,
-        message: "This route is protected for Admin"
+        message: "This route is protected for admin users",
       });
     }
     next();
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "User Role is not verified, Please try again",
-      error: error.message
+      message: "User role is not verified, please try again",
+      error: error.message,
     });
   }
 };

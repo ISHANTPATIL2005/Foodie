@@ -13,7 +13,7 @@ exports.RestaurantRegister = async (req, res) => {
     const { restaurantName, address, city, phone, latitude, longitude } = req.body;
 
 
-    // Check required fields
+    
     if (!restaurantName || !address || !city || !phone || !latitude || !longitude) {
       return res.status(400).json({
         success: false,
@@ -153,12 +153,26 @@ exports.deleteRestaurant = async (req, res) => {
 };
 
 
+
 exports.getMyRestaurant = async (req, res) => {
   try {
-    const restaurant = await Restaurant.findById(req.params.id);
+    const { id } = req.params;
+
+    // 🔒 VALIDATE ID BEFORE QUERY
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid restaurant ID",
+      });
+    }
+
+    const restaurant = await Restaurant.findById(id);
 
     if (!restaurant) {
-      return res.status(404).json({ success: false, message: "No restaurant found" });
+      return res.status(404).json({
+        success: false,
+        message: "No restaurant found",
+      });
     }
 
     // 🔗 Find all products created by this restaurant
@@ -167,12 +181,17 @@ exports.getMyRestaurant = async (req, res) => {
     return res.status(200).json({
       success: true,
       restaurant,
-      products,   // send products here
+      products,
     });
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    console.error("getMyRestaurant error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
+
 
 
 
