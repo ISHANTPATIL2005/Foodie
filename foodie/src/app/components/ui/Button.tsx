@@ -15,12 +15,16 @@ interface ButtonProps
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: "bg-blue-600 hover:bg-blue-700 text-white",
-  secondary: "bg-gray-600 hover:bg-gray-700 text-white",
-  danger: "bg-red-600 hover:bg-red-700 text-white",
+  primary:
+    "bg-[#F59E0B] hover:bg-[#D97706] text-black",
+  secondary:
+    "bg-[#92400E] hover:bg-[#78350F] text-white",
+  danger:
+    "bg-[#DC2626] hover:bg-[#B91C1C] text-white",
   outline:
-    "border border-gray-400 text-gray-700 hover:bg-gray-100",
+    "border border-[#92400E] text-[#92400E] hover:bg-[#FEF3E2] items-center",
 };
+
 
 export const Button = React.forwardRef<
   HTMLButtonElement,

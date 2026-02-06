@@ -7,21 +7,46 @@ interface Props {
 
 export default function RestaurantCard({ restaurant }: Props) {
   return (
-   <Link href={`/restaurants/${restaurant._id}`}>
-      <div className="border rounded p-4 hover:shadow cursor-pointer">
-        <img
-          src={restaurant.image}
-          alt={restaurant.restaurantName}
-          className="h-40 w-full object-cover rounded"
-        />
+    <Link href={`/restaurants/${restaurant._id}`} className="group">
+      <div
+        className="
+          bg-white
+          rounded-2xl
+          overflow-hidden
+          border
+          shadow-sm
+          hover:shadow-lg
+          transition
+          duration-300
+          cursor-pointer
+        "
+      >
+        {/* Image */}
+        <div className="overflow-hidden">
+          <img
+            src={restaurant.image}
+            alt={restaurant.restaurantName}
+            className="
+              h-44
+              w-full
+              object-cover
+              transition-transform
+              duration-300
+              group-hover:scale-105
+            "
+          />
+        </div>
 
-        <h2 className="text-lg font-semibold mt-2">
-          {restaurant.restaurantName}
-        </h2>
+        {/* Content */}
+        <div className="p-4">
+          <h2 className="text-lg font-semibold text-gray-800">
+            {restaurant.restaurantName}
+          </h2>
 
-        <p className="text-sm text-gray-500">
-          {restaurant.city}
-        </p>
+          <p className="text-sm text-gray-500 mt-1">
+            {restaurant.city}
+          </p>
+        </div>
       </div>
     </Link>
   );

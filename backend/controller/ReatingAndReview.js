@@ -116,3 +116,38 @@ exports.getRatingById = async (req, res) => {
     });
   }
 };
+
+
+exports.deleteRating = async (req, res) => {
+  try{
+    const ratingid=req.params.id;
+    if(!ratingid){
+      return res.status(400).json({
+        success: false,
+        message: "Rating ID is required",
+      });
+    }
+
+    const deletedRating = await RatingAndReview.findByIdAndDelete(ratingid);
+
+    if (!deletedRating) {
+      return res.status(404).json({
+        success: false,
+        message: "Rating not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Rating deleted successfully",
+      deletedRating,
+    });
+  }
+  catch(error){
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred in deleteRating",
+      error: error.message,
+    });
+  }
+}

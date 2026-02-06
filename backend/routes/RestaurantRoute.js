@@ -4,7 +4,7 @@ const router = express.Router();
 
 const {auth,IsUser,isAdmin,IsRestaurant}=require("../middelware/auth")
 const{RestaurantRegister,updateRestaurant,deleteRestaurant,getAllRestaurants,getMyRestaurant}=require("../controller/Restaurant");
-const {bookRestaurant,getBookingById,getAllBooking}=require("../controller/Order")
+const {bookRestaurant,getBookingById,getAllBooking,}=require("../controller/Order")
 
 router.post("/register",auth,RestaurantRegister);
 router.put("/update",auth,IsRestaurant,updateRestaurant);
