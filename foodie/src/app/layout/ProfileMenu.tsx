@@ -11,7 +11,7 @@ export default function ProfileMenu() {
       
       {accountType === "restaurant" && (
         <Link
-          href="/restaurant/add-dish"
+          href="/products/newProduct"
           className="block px-4 py-2 text-sm hover:bg-gray-100"
         >
           ➕ Add Dish

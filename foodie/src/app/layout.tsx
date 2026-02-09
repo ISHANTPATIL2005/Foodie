@@ -4,6 +4,7 @@ import "./globals.css";
 import {AuthProvider} from "@/app/context/AuthProvider"
 import { CartProvider } from "./context/CartContext";
 import NavBar from "./layout/NavBar"
+import Footer from "../app/layout/Footer"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,7 +39,8 @@ export default function RootLayout({
 
 
             {children}
-
+         
+         <Footer/>
 
           </CartProvider>
         </AuthProvider>

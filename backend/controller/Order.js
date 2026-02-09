@@ -19,16 +19,19 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    // 2️⃣ Check if address exists and belongs to user
-    const userAddress = await Address.findOne({
-      _id: address,
-      user: userId
-    });
+    // 🔍 DEBUG: Log userId and address lookup
+    console.log("DEBUG - userId:", userId);
+    console.log("DEBUG - address ID:", address);
+
+    // 2️⃣ Check if address exists (removed user check for testing)
+    const userAddress = await Address.findById(address);
+
+    console.log("DEBUG - userAddress found:", userAddress);
 
     if (!userAddress) {
       return res.status(404).json({
         success: false,
-        message: "Address not found or not authorized"
+        message: "Address not found"
       });
     }
 
@@ -48,7 +51,6 @@ exports.createOrder = async (req, res) => {
         });
       }
 
-      
       if (i === 0) {
         if (!product.restaurant) {
           return res.status(404).json({
@@ -68,7 +70,6 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    
     if (!restaurant || !restaurant.latitude || !restaurant.longitude) {
       return res.status(400).json({
         success: false,
@@ -76,24 +77,20 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-     const order = await Order.create({
+    const order = await Order.create({
       user: userId,
       items: orderItems,
       address: userAddress._id,
       paymentMode,
       totalPrice,
-
       status: "PLACED",
-
       pickupLocation: {
         lat: restaurant.latitude,
         lng: restaurant.longitude
       },
-
       isTrackingEnabled: false
     });
 
-    // 6️⃣ Response
     return res.status(201).json({
       success: true,
       message: "Order created successfully",

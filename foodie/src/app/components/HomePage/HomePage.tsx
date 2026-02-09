@@ -9,6 +9,7 @@ import RestaurantCard from "../restaurant/RestaurantCard";
 import RestaurantSection from "./restaurant"
 import { get } from "http";
 import { getRestaurants } from "@/app/lib/restaurants";
+import RestroSection from "./restroSection";
 
 
 
@@ -83,6 +84,8 @@ export default async function HomePage() {
    <Products products={products}/>
 </div>
 <RestaurantSection restaurants={restaurants}/>
+
+<RestroSection/>
  </div>
   );
 }

@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import Input from "@/app/components/ui/Input";
 import { Button } from "@/app/components/ui/Button";
 import { createRestaurant } from "@/app/lib/CreateRestaurant";
-import {useAuth} from "@/app/context/AuthProvider"
-
+import { useAuth } from "@/app/context/AuthProvider";
 
 export default function CreateRestaurantPage() {
-  const {token}=useAuth();
+  const { token } = useAuth();
+
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,12 +23,11 @@ export default function CreateRestaurantPage() {
     image: null as File | null,
   });
 
-  
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const storedToken = localStorage.getItem("token");
     const accountType = localStorage.getItem("accountType");
 
-    if (!token) {
+    if (!storedToken) {
       setError("Please login first");
       return;
     }
@@ -41,35 +40,23 @@ export default function CreateRestaurantPage() {
     setAuthorized(true);
   }, []);
 
-  
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement>
-  ) {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  async function handleSubmit(
-    e: React.FormEvent
-  ) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
     setLoading(true);
+    setError(null);
 
     try {
       const formData = new FormData();
 
-      formData.append(
-        "restaurantName",
-        form.restaurantName
-      );
-      formData.append("address", form.address);
-      formData.append("city", form.city);
-      formData.append("phone", form.phone);
-      formData.append("latitude", form.latitude);
-      formData.append("longitude", form.longitude);
+      Object.entries(form).forEach(([key, value]) => {
+        if (key !== "image" && value) {
+          formData.append(key, value);
+        }
+      });
 
       if (form.image) {
         formData.append("image", form.image);
@@ -77,9 +64,6 @@ export default function CreateRestaurantPage() {
 
       await createRestaurant(formData, token);
 
-      alert("Restaurant created successfully");
-
-     
       setForm({
         restaurantName: "",
         address: "",
@@ -98,102 +82,126 @@ export default function CreateRestaurantPage() {
 
   if (!authorized) {
     return (
-      <p className="p-6 text-red-600">
-        {error}
-      </p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p className="text-red-600 font-semibold">{error}</p>
+      </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">
-        Create Restaurant
-      </h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f2027] via-[#203a43] to-[#2c5364] px-4">
+      <div className="w-full max-w-2xl rounded-3xl bg-white/90 backdrop-blur-xl shadow-2xl p-8">
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4"
-      >
-        <Input
-          label="Restaurant Name"
-          name="restaurantName"
-          onChange={handleChange}
-          required
-        />
-
-        <Input
-          label="Address"
-          name="address"
-          onChange={handleChange}
-          required
-        />
-
-        <Input
-          label="City"
-          name="city"
-          onChange={handleChange}
-          required
-        />
-
-        <Input
-          label="Phone Number"
-          name="phone"
-          type="number"
-          onChange={handleChange}
-          required
-        />
-
-        <Input
-          label="Latitude"
-          name="latitude"
-          onChange={handleChange}
-          required
-        />
-
-        <Input
-          label="Longitude"
-          name="longitude"
-          onChange={handleChange}
-          required
-        />
-
-        {/* IMAGE UPLOAD */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium">
-            Restaurant Image
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            required
-            onChange={(e) =>
-              setForm({
-                ...form,
-                image:
-                  e.target.files?.[0] || null,
-              })
-            }
-            className="w-full border rounded px-3 py-2"
-          />
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-extrabold text-gray-900">
+            🏪 Create Restaurant
+          </h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Register your restaurant on the platform
+          </p>
         </div>
 
-        {error && (
-          <p className="text-sm text-red-600">
-            {error}
-          </p>
-        )}
+        <form onSubmit={handleSubmit} className="space-y-6">
 
-        <Button
-          type="submit"
-          variant="primary"
-          disabled={loading}
-          className="w-full"
-        >
-          {loading
-            ? "Creating..."
-            : "Create Restaurant"}
-        </Button>
-      </form>
+          <Input
+            label="Restaurant Name"
+            name="restaurantName"
+            value={form.restaurantName}
+            onChange={handleChange}
+            placeholder="Restaurant Name"
+            required
+          />
+
+          <Input
+            label="Address"
+            name="address"
+            value={form.address}
+            onChange={handleChange}
+            placeholder="Address"
+            required
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <Input
+              label="City"
+              name="city"
+              value={form.city}
+              onChange={handleChange}
+              placeholder="City"
+              required
+            />
+
+            <Input
+              label="Phone Number"
+              name="phone"
+              type="number"
+              value={form.phone}
+              onChange={handleChange}
+              placeholder="0000000000"
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <Input
+              label="Latitude"
+              name="latitude"
+              value={form.latitude}
+              onChange={handleChange}
+              placeholder="Latitude"
+              required
+            />
+
+            <Input
+              label="Longitude"
+              name="longitude"
+              value={form.longitude}
+              onChange={handleChange}
+              placeholder="Longitude"
+              required
+            />
+          </div>
+
+          {/* Image */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-800 mb-2">
+              Restaurant Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              required
+              onChange={(e) =>
+                setForm({ ...form, image: e.target.files?.[0] || null })
+              }
+              className="
+                w-full rounded-xl border border-dashed border-gray-400 px-4 py-3
+                text-gray-600
+                file:mr-4 file:rounded-lg file:border-0
+                file:bg-indigo-50 file:px-4 file:py-2
+                file:text-indigo-700 file:font-semibold
+                hover:file:bg-indigo-100 transition
+              "
+            />
+          </div>
+
+          {error && (
+            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3">
+              <p className="text-sm font-medium text-red-600">{error}</p>
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={loading}
+            className="w-full h-12 text-lg font-bold"
+          >
+            {loading ? "Creating Restaurant..." : "Create Restaurant"}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }
